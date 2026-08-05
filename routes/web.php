@@ -141,6 +141,14 @@ return static function (Router $router): void {
         $r->get('/reports', [ReportController::class, 'index']);
         $r->get('/reports/export/{type}', [ReportController::class, 'export']);
 
+        // Internal chat.
+        $r->get('/chat', [\App\Controllers\ChatController::class, 'index']);
+        $r->post('/chat/channels', [\App\Controllers\ChatController::class, 'create']);
+        $r->get('/chat/file', [\App\Controllers\ChatController::class, 'file']);
+        $r->get('/chat/channels/{id}/messages', [\App\Controllers\ChatController::class, 'messages']);
+        $r->post('/chat/channels/{id}/messages', [\App\Controllers\ChatController::class, 'send']);
+        $r->post('/chat/channels/{id}/typing', [\App\Controllers\ChatController::class, 'typing']);
+
         // Search + notifications.
         $r->get('/search', [SearchController::class, 'index']);
         $r->get('/notifications', [NotificationController::class, 'index']);

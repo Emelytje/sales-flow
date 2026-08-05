@@ -587,6 +587,7 @@ CREATE TABLE chat_members (
     channel_id  BIGINT UNSIGNED NOT NULL,
     user_id     BIGINT UNSIGNED NOT NULL,
     last_read_at DATETIME DEFAULT NULL,
+    typing_at   DATETIME DEFAULT NULL,
     PRIMARY KEY (channel_id, user_id),
     CONSTRAINT fk_cm_channel FOREIGN KEY (channel_id) REFERENCES chat_channels (id) ON DELETE CASCADE,
     CONSTRAINT fk_cm_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE

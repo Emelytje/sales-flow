@@ -32,6 +32,7 @@ use App\Core\Auth;
         <div class="nav-section">
             <div class="nav-section-title">Inzicht</div>
             <a class="nav-link <?= $isActive('/reports') ?>" href="/reports"><?= icon('bar-chart') ?> Rapporten</a>
+            <a class="nav-link <?= $isActive('/chat') ?>" href="/chat"><?= icon('message') ?> Chat</a>
             <a class="nav-link <?= $isActive('/notifications') ?>" href="/notifications"><?= icon('bell') ?> Meldingen</a>
         </div>
 
