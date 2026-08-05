@@ -17,6 +17,7 @@ use App\Core\Auth;
             <a class="nav-link <?= $isActive('/customers') ?>" href="/customers"><?= icon('building') ?> Klanten</a>
             <a class="nav-link <?= $isActive('/contacts') ?>" href="/contacts"><?= icon('users') ?> Contacten</a>
             <a class="nav-link <?= $isActive('/callboard') ?>" href="/callboard"><?= icon('phone-call') ?> Callboard</a>
+            <a class="nav-link <?= $isActive('/emails') ?>" href="/emails"><?= icon('mail') ?> E-mail</a>
             <a class="nav-link <?= $isActive('/quotations') ?>" href="/quotations"><?= icon('file-text') ?> Offertes</a>
             <a class="nav-link <?= $isActive('/projects') ?>" href="/projects"><?= icon('briefcase') ?> Projecten</a>
         </div>

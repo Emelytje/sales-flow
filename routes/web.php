@@ -86,6 +86,12 @@ return static function (Router $router): void {
         $r->get('/attachments/{id}/download', [\App\Controllers\AttachmentController::class, 'download']);
         $r->delete('/attachments/{id}', [\App\Controllers\AttachmentController::class, 'destroy']);
 
+        // Email.
+        $r->get('/emails', [\App\Controllers\EmailController::class, 'index']);
+        $r->post('/emails/send', [\App\Controllers\EmailController::class, 'send']);
+        $r->post('/emails/templates', [\App\Controllers\EmailController::class, 'storeTemplate']);
+        $r->delete('/emails/templates/{id}', [\App\Controllers\EmailController::class, 'deleteTemplate']);
+
         // Contacts.
         $r->get('/contacts', [ContactController::class, 'index']);
         $r->post('/contacts', [ContactController::class, 'store']);
