@@ -1,0 +1,21 @@
+# Environment & secrets
+.env
+
+# Storage (runtime-generated)
+storage/logs/*
+storage/cache/*
+storage/uploads/*
+!storage/logs/.gitkeep
+!storage/cache/.gitkeep
+!storage/uploads/.gitkeep
+
+# Dependencies
+/vendor/
+node_modules/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
