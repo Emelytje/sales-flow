@@ -86,6 +86,18 @@ final class CustomerController extends Controller
         $payload = $this->nullifyEmpty($payload, ['sector_id', 'project_id', 'owner_id', 'latitude', 'longitude']);
 
         $id = $this->customers->create($payload);
+
+        // Best-effort free geocoding (OpenStreetMap) when no coordinates given.
+        if (empty($payload['latitude']) && (!empty($payload['city']) || !empty($payload['address']))) {
+            try {
+                $geo = \App\Services\GeoService::geocode(trim(($payload['address'] ?? '') . ', ' . ($payload['postal_code'] ?? '') . ' ' . ($payload['city'] ?? '') . ', ' . ($payload['country'] ?? 'België')));
+                if ($geo !== null) {
+                    $this->customers->update($id, ['latitude' => $geo['lat'], 'longitude' => $geo['lon']]);
+                }
+            } catch (\Throwable) {
+            }
+        }
+
         (new Activity())->log([
             'customer_id' => $id, 'user_id' => Auth::id(), 'type' => 'system',
             'subject' => 'Klant aangemaakt',

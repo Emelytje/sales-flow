@@ -120,6 +120,7 @@ return static function (Router $router): void {
 
         // Map.
         $r->get('/map', [MapController::class, 'index']);
+        $r->post('/map/geocode/{id}', [MapController::class, 'geocode']);
 
         // Reports.
         $r->get('/reports', [ReportController::class, 'index']);

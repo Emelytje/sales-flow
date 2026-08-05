@@ -9,7 +9,7 @@ use App\Core\Controller;
 use App\Core\Database;
 use App\Core\Request;
 use App\Models\Event;
-use App\Services\TeamsService;
+use App\Services\MeetingService;
 
 final class AgendaController extends Controller
 {
@@ -88,12 +88,16 @@ final class AgendaController extends Controller
             'reminder_minutes' => (int) $request->input('reminder_minutes', 30),
         ];
 
-        // Optional Teams meeting.
-        if ($request->input('create_teams') && TeamsService::configured()) {
-            $link = TeamsService::createMeeting((int) Auth::id(), $data['title'], $payload['starts_at'], $payload['ends_at']);
-            if ($link) {
-                $payload['teams_join_url'] = $link;
-            }
+        // Optional online meeting — free by default (Jitsi), Teams if connected.
+        if ($request->input('create_meeting') || $request->input('create_teams')) {
+            $meeting = MeetingService::create(
+                (int) Auth::id(),
+                (string) $data['title'],
+                $payload['starts_at'],
+                $payload['ends_at'],
+                (bool) $request->input('prefer_teams')
+            );
+            $payload['teams_join_url'] = $meeting['url'];
         }
 
         $conflict = $this->events->hasConflict((int) Auth::id(), $payload['starts_at'], $payload['ends_at']);

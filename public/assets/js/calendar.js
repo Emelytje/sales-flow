@@ -125,7 +125,7 @@
                     ${e.location ? `<p class="mb-2"><strong>Locatie:</strong> ${escapeHtml(e.location)}</p>` : ''}
                     ${e.company ? `<p class="mb-2"><strong>Klant:</strong> <a class="text-accent" href="/customers/${e.customer_id}">${escapeHtml(e.company)}</a></p>` : ''}
                     ${e.travel ? `<p class="mb-2"><strong>Reistijd:</strong> ${e.travel} min</p>` : ''}
-                    ${e.teams ? `<a class="btn btn-primary btn-sm" href="${e.teams}" target="_blank">Deelnemen aan Teams</a>` : ''}
+                    ${e.teams ? `<a class="btn btn-primary btn-sm" href="${e.teams}" target="_blank">🎥 Deelnemen aan videocall</a>` : ''}
                     ${e.description ? `<p class="mt-2 text-soft">${escapeHtml(e.description)}</p>` : ''}
                 </div>
                 <div class="modal-foot">
@@ -156,7 +156,7 @@
                         <div class="field"><textarea class="textarea" name="description" placeholder="Omschrijving…"></textarea></div>
                         <div class="flex gap-4 wrap">
                             <label class="flex items-center gap-2 small"><input type="checkbox" name="visibility" value="private"> Privé</label>
-                            <label class="flex items-center gap-2 small"><input type="checkbox" name="create_teams" value="1"> Teams-vergadering</label>
+                            <label class="flex items-center gap-2 small"><input type="checkbox" name="create_meeting" value="1"> Videovergadering (gratis)</label>
                         </div>
                     </div>
                     <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close>Annuleren</button><button class="btn btn-primary">Opslaan</button></div>
