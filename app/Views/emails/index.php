@@ -5,6 +5,7 @@ $statusMeta = ['sent' => ['Verzonden', 'info'], 'failed' => ['Mislukt', 'danger'
 <div class="page-head">
     <div class="title"><h1>E-mail</h1><p>Verstuur met open- &amp; klik-tracking · gratis via SMTP</p></div>
     <div class="page-actions">
+        <a class="btn btn-outline" href="/emails/inbox"><?= icon('mail', 18) ?> Inbox</a>
         <button class="btn btn-outline" onclick="tplModal()"><?= icon('file-text', 18) ?> Sjabloon</button>
         <button class="btn btn-primary" onclick="composeModal()"><?= icon('send', 18) ?> Nieuwe e-mail</button>
     </div>

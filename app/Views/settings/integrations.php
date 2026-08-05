@@ -27,6 +27,26 @@ $items = [
     <?php endforeach; ?>
 </div>
 
+<?php $gConnected = \App\Services\GoogleService::connected((int) (auth()['id'] ?? 0)); ?>
+<div class="card mt-4"><div class="card-body">
+    <div class="flex items-center justify-between wrap gap-3">
+        <div>
+            <h3 class="mb-1"><?= icon('mail', 18) ?> Gmail-koppeling</h3>
+            <p class="small text-muted">Lees je inbox in SalesFlow. <?= $google ? '' : 'Vul eerst GOOGLE_CLIENT_ID/SECRET in <code>.env</code> in.' ?></p>
+        </div>
+        <div>
+            <?php if (!$google): ?>
+                <span class="badge badge-neutral">Niet geconfigureerd</span>
+            <?php elseif ($gConnected): ?>
+                <span class="badge badge-success badge-dot" style="margin-right:8px;">Gekoppeld</span>
+                <form action="/oauth/google/disconnect" method="post" style="display:inline;"><?= csrf_field() ?><button class="btn btn-ghost btn-sm">Ontkoppelen</button></form>
+            <?php else: ?>
+                <a class="btn btn-primary btn-sm" href="/oauth/google/connect"><?= icon('link', 16) ?> Gmail koppelen</a>
+            <?php endif; ?>
+        </div>
+    </div>
+</div></div>
+
 <div class="card mt-4"><div class="card-body">
     <h3 class="mb-2"><?= icon('phone-call', 18) ?> CTI / Telefonie webhook</h3>
     <p class="small text-muted mb-3">Stel deze URL in bij je telefooncentrale (3CX, Zadarma, Twilio) voor scherm-pop bij inkomende oproepen. Zie <code>docs/CTI-SETUP.md</code>.</p>

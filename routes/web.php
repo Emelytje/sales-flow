@@ -88,7 +88,14 @@ return static function (Router $router): void {
 
         // Email.
         $r->get('/emails', [\App\Controllers\EmailController::class, 'index']);
+        $r->get('/emails/inbox', [\App\Controllers\EmailController::class, 'inbox']);
+        $r->get('/emails/message/{id}', [\App\Controllers\EmailController::class, 'readMessage']);
         $r->post('/emails/send', [\App\Controllers\EmailController::class, 'send']);
+
+        // OAuth connect flows.
+        $r->get('/oauth/google/connect', [\App\Controllers\OAuthController::class, 'googleConnect']);
+        $r->get('/oauth/google/callback', [\App\Controllers\OAuthController::class, 'googleCallback']);
+        $r->post('/oauth/google/disconnect', [\App\Controllers\OAuthController::class, 'googleDisconnect']);
         $r->post('/emails/templates', [\App\Controllers\EmailController::class, 'storeTemplate']);
         $r->delete('/emails/templates/{id}', [\App\Controllers\EmailController::class, 'deleteTemplate']);
 

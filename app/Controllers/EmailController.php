@@ -90,6 +90,33 @@ final class EmailController extends Controller
         $this->redirect('/emails');
     }
 
+    /** Gmail inbox (read-only) — requires a connected Google account. */
+    public function inbox(Request $request): never
+    {
+        $this->requireAuth($request);
+        $this->authorize('email.send', $request);
+        $userId = (int) Auth::id();
+
+        $this->view('emails/inbox', [
+            'title'     => 'Inbox',
+            'configured'=> \App\Services\GoogleService::configured(),
+            'connected' => \App\Services\GoogleService::connected($userId),
+            'messages'  => \App\Services\GoogleService::connected($userId) ? \App\Services\GoogleService::inbox($userId, 25) : [],
+        ]);
+    }
+
+    /** Read a single Gmail message. */
+    public function readMessage(Request $request, array $params): never
+    {
+        $this->requireAuth($request);
+        $this->authorize('email.send', $request);
+        $msg = \App\Services\GoogleService::message((int) Auth::id(), (string) $params['id']);
+        if ($msg === null) {
+            $this->json(['error' => 'Bericht niet gevonden of Gmail niet gekoppeld.'], 404);
+        }
+        $this->json($msg);
+    }
+
     public function storeTemplate(Request $request): never
     {
         $this->requireAuth($request);
