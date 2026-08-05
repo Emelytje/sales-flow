@@ -2,16 +2,35 @@
 /**
  * Front controller — the single public entry point.
  *
- * On a VPS point the document root here (/public). On InfinityFree, place this
- * file's directory as htdocs and keep /app, /config, etc. one level above the
- * web root (or protect them with the shipped .htaccess rules).
+ * Works with two layouts automatically:
+ *   1. VPS / recommended: web root points at /public, with /app one level above.
+ *   2. InfinityFree / shared hosting: everything lives in htdocs together, so
+ *      /app sits next to this file. We locate bootstrap.php in either place.
  */
 
 declare(strict_types=1);
 
 use App\Core\Request;
 
+$candidates = [
+    __DIR__ . '/app/bootstrap.php',          // flat layout (htdocs)
+    dirname(__DIR__) . '/app/bootstrap.php',  // public/ web root
+];
+
+$bootstrap = null;
+foreach ($candidates as $candidate) {
+    if (is_file($candidate)) {
+        $bootstrap = $candidate;
+        break;
+    }
+}
+
+if ($bootstrap === null) {
+    http_response_code(500);
+    exit('Kan app/bootstrap.php niet vinden. Controleer de mapstructuur.');
+}
+
 /** @var App\Core\Router $router */
-$router = require dirname(__DIR__) . '/app/bootstrap.php';
+$router = require $bootstrap;
 
 $router->dispatch(new Request());

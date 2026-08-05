@@ -13,7 +13,9 @@ session_start();
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
 
-const ROOT = __DIR__ . '/..';
+// Detect project root: flat htdocs layout (app next to this file) or a
+// dedicated /public web root (app one level up).
+define('ROOT', is_dir(__DIR__ . '/database') ? __DIR__ : dirname(__DIR__));
 $envPath = ROOT . '/.env';
 $step = (int) ($_GET['step'] ?? 1);
 $errors = [];
