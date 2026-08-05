@@ -70,6 +70,11 @@ return static function (Router $router): void {
     $router->group(['middleware' => $auth], static function (Router $r): void {
         $r->get('/dashboard', [DashboardController::class, 'index']);
 
+        // Company lookups (KBO/CBE + VIES VAT).
+        $r->get('/lookup/kbo', [\App\Controllers\LookupController::class, 'kbo']);
+        $r->get('/lookup/kbo/search', [\App\Controllers\LookupController::class, 'kboSearch']);
+        $r->get('/lookup/vat', [\App\Controllers\LookupController::class, 'vat']);
+
         // Customers.
         $r->get('/customers', [CustomerController::class, 'index']);
         $r->get('/customers/create', [CustomerController::class, 'create']);

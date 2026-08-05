@@ -74,6 +74,14 @@ return [
             'tenant'        => Env::get('MS_TENANT', 'common'),
             'redirect'      => Env::get('MS_REDIRECT', ''),
         ],
+        'kbo' => [
+            // Belgian Crossroads Bank for Enterprises lookup (cbeapi.be).
+            'url' => rtrim(Env::get('KBO_API_URL', 'https://cbeapi.be/api'), '/'),
+            'key' => Env::get('KBO_API_KEY', ''),
+            // Override paths here if the provider changes them (no code change needed).
+            'enterprise_path' => Env::get('KBO_ENTERPRISE_PATH', '/v1/enterprise/{number}'),
+            'search_path'     => Env::get('KBO_SEARCH_PATH', '/v1/search?query={query}'),
+        ],
     ],
 
     'paths' => [

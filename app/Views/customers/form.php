@@ -18,10 +18,13 @@ $stages = ['lead' => 'Lead', 'contacted' => 'Contact', 'qualified' => 'Gekwalifi
     <div class="dash-grid" style="grid-template-columns:2fr 1fr;">
         <div class="col">
             <div class="card"><div class="card-body">
-                <h3 class="mb-4"><?= icon('building', 18) ?> Bedrijfsgegevens</h3>
+                <div class="flex items-center justify-between mb-4">
+                    <h3><?= icon('building', 18) ?> Bedrijfsgegevens</h3>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="kboLookup()"><?= icon('search', 15) ?> KBO/BTW opzoeken</button>
+                </div>
                 <div class="field">
                     <label class="label">Bedrijfsnaam *</label>
-                    <input class="input <?= error('company_name') ? 'error' : '' ?>" name="company_name" value="<?= $val('company_name') ?>" required>
+                    <input class="input <?= error('company_name') ? 'error' : '' ?>" name="company_name" id="f_company_name" value="<?= $val('company_name') ?>" required>
                     <?php if ($m = error('company_name')): ?><div class="field-error"><?= e($m) ?></div><?php endif; ?>
                 </div>
                 <div class="grid gap-4" style="grid-template-columns:1fr 1fr;">
@@ -29,17 +32,17 @@ $stages = ['lead' => 'Lead', 'contacted' => 'Contact', 'qualified' => 'Gekwalifi
                     <div class="field"><label class="label">Telefoon</label><input class="input" name="phone" value="<?= $val('phone') ?>"></div>
                     <div class="field"><label class="label">Website</label><input class="input" name="website" value="<?= $val('website') ?>" placeholder="https://"></div>
                     <div class="field"><label class="label">LinkedIn</label><input class="input" name="linkedin" value="<?= $val('linkedin') ?>"></div>
-                    <div class="field"><label class="label">BTW-nummer</label><input class="input" name="vat_number" value="<?= $val('vat_number') ?>" placeholder="BE0123.456.789"></div>
-                    <div class="field"><label class="label">KBO-nummer</label><input class="input" name="kbo_number" value="<?= $val('kbo_number') ?>"></div>
+                    <div class="field"><label class="label">BTW-nummer</label><input class="input" name="vat_number" id="f_vat_number" value="<?= $val('vat_number') ?>" placeholder="BE0123.456.789"></div>
+                    <div class="field"><label class="label">KBO-nummer</label><input class="input" name="kbo_number" id="f_kbo_number" value="<?= $val('kbo_number') ?>" placeholder="0123.456.789"></div>
                 </div>
             </div></div>
 
             <div class="card"><div class="card-body">
                 <h3 class="mb-4"><?= icon('map-pin', 18) ?> Adres</h3>
-                <div class="field"><label class="label">Straat en nummer</label><input class="input" name="address" id="addr" value="<?= $val('address') ?>"></div>
+                <div class="field"><label class="label">Straat en nummer</label><input class="input" name="address" id="f_address" value="<?= $val('address') ?>"></div>
                 <div class="grid gap-4" style="grid-template-columns:1fr 2fr 1fr;">
-                    <div class="field"><label class="label">Postcode</label><input class="input" name="postal_code" value="<?= $val('postal_code') ?>"></div>
-                    <div class="field"><label class="label">Plaats</label><input class="input" name="city" value="<?= $val('city') ?>"></div>
+                    <div class="field"><label class="label">Postcode</label><input class="input" name="postal_code" id="f_postal_code" value="<?= $val('postal_code') ?>"></div>
+                    <div class="field"><label class="label">Plaats</label><input class="input" name="city" id="f_city" value="<?= $val('city') ?>"></div>
                     <div class="field"><label class="label">Land</label><input class="input" name="country" value="<?= $val('country', 'België') ?>"></div>
                 </div>
                 <input type="hidden" name="latitude" value="<?= $val('latitude') ?>">
@@ -104,3 +107,40 @@ $stages = ['lead' => 'Lead', 'contacted' => 'Contact', 'qualified' => 'Gekwalifi
         <button class="btn btn-primary btn-lg" type="submit"><?= icon('check', 18) ?> <?= $isEdit ? 'Wijzigingen opslaan' : 'Klant aanmaken' ?></button>
     </div>
 </form>
+
+<script>
+async function kboLookup() {
+    var num = (document.getElementById('f_kbo_number').value || document.getElementById('f_vat_number').value || '').trim();
+    var name = document.getElementById('f_company_name').value.trim();
+    if (!num && !name) { SF.toast('Vul een KBO/BTW-nummer of bedrijfsnaam in', 'error'); return; }
+
+    // With a number: direct lookup. Without: search by name and let the user pick.
+    if (num) {
+        try {
+            var res = await SF.api('/lookup/kbo?number=' + encodeURIComponent(num));
+            if (res.found) return fill(res.company);
+            SF.toast('Geen gegevens gevonden voor dit nummer', 'error');
+        } catch (e) {}
+        return;
+    }
+    try {
+        var data = await SF.api('/lookup/kbo/search?q=' + encodeURIComponent(name));
+        if (!data.configured) { SF.toast('KBO-zoeken op naam vereist een cbeapi.be-sleutel', 'info', 5000); return; }
+        if (!data.results.length) { SF.toast('Geen bedrijven gevonden', 'error'); return; }
+        var rows = data.results.map(function (c, i) {
+            return '<div class="flex items-center gap-3" style="padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer;" onclick="window.__kbo(' + i + ')">' +
+                '<div class="flex-1"><div style="font-weight:700;font-size:var(--fs-sm);">' + esc(c.company_name) + '</div>' +
+                '<div class="tiny text-muted">' + esc([c.postal_code, c.city].filter(Boolean).join(' ')) + (c.kbo_number ? ' · ' + esc(c.kbo_number) : '') + '</div></div>' +
+                '<span class="text-accent">Kies</span></div>';
+        }).join('');
+        var m = SF.modal.open('<div class="modal-head"><h3>Kies een bedrijf</h3><button class="icon-btn" data-close>&times;</button></div><div class="modal-body">' + rows + '</div>');
+        window.__kbo = function (i) { SF.modal.close(); fill(data.results[i]); };
+    } catch (e) {}
+}
+function fill(c) {
+    var map = { company_name: 'f_company_name', vat_number: 'f_vat_number', kbo_number: 'f_kbo_number', address: 'f_address', postal_code: 'f_postal_code', city: 'f_city' };
+    Object.keys(map).forEach(function (k) { if (c[k]) { var el = document.getElementById(map[k]); if (el && !el.value) el.value = c[k]; else if (el && c[k]) el.value = c[k]; } });
+    SF.toast('Gegevens ingevuld via ' + (c.source || 'KBO'), 'success');
+}
+function esc(s){return String(s||'').replace(/[&<>"]/g,function(x){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[x];});}
+</script>
