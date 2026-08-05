@@ -13,10 +13,26 @@ session_start();
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
 
-// Detect project root: flat htdocs layout (app next to this file) or a
-// dedicated /public web root (app one level up).
-define('ROOT', is_dir(__DIR__ . '/database') ? __DIR__ : dirname(__DIR__));
+// Detect project root WITHOUT ever stepping above the web root (InfinityFree's
+// open_basedir forbids that). Prefer the current dir (flat htdocs layout);
+// only use the parent when it is actually accessible and holds the app.
+$root = __DIR__;
+if (!is_dir(__DIR__ . '/app') && !is_dir(__DIR__ . '/database')) {
+    $parent = dirname(__DIR__);
+    if (@is_dir($parent . '/app') || @is_dir($parent . '/database')) {
+        $root = $parent;
+    }
+}
+define('ROOT', $root);
 $envPath = ROOT . '/.env';
+
+// Ensure runtime storage directories exist and are writable.
+foreach (['storage', 'storage/logs', 'storage/cache', 'storage/uploads'] as $d) {
+    $p = ROOT . '/' . $d;
+    if (!is_dir($p)) {
+        @mkdir($p, 0775, true);
+    }
+}
 $step = (int) ($_GET['step'] ?? 1);
 $errors = [];
 
@@ -132,8 +148,10 @@ $checks = [
     'PDO MySQL-extensie'        => extension_loaded('pdo_mysql'),
     'OpenSSL-extensie'          => extension_loaded('openssl'),
     'mbstring-extensie'         => extension_loaded('mbstring'),
+    'cURL-extensie'             => extension_loaded('curl'),
     'Hoofdmap schrijfbaar'      => is_writable(ROOT),
-    'storage/ schrijfbaar'      => is_writable(ROOT . '/storage'),
+    'storage/ schrijfbaar'      => is_dir(ROOT . '/storage') && is_writable(ROOT . '/storage'),
+    'database/schema.sql aanwezig' => is_file(ROOT . '/database/schema.sql'),
 ];
 $allOk = !in_array(false, $checks, true);
 ?>
