@@ -29,6 +29,11 @@ mode, mobile-first.
   OpenStreetMap**, no billing), navigate links, geocoding.
 - **Reports** — team performance, revenue/activity charts, pipeline, CSV
   (Excel) + PDF export.
+- **Email** — tracked sending via SMTP (open + click), templates, and a live
+  **Gmail inbox** via Google OAuth (read + send).
+- **Chat** — internal team channels & DMs, live polling, read receipts, typing
+  indicator, file sharing.
+- **Uploads** — drag-and-drop attachments with version history, secure storage.
 - **REST API** — bearer-token auth, customers/contacts/quotations/activities,
   signed outbound webhooks.
 - **PWA** — installable, offline app-shell, Web Push (VAPID).
