@@ -80,6 +80,11 @@ return static function (Router $router): void {
         $r->delete('/customers/{id}', [CustomerController::class, 'destroy']);
         $r->post('/customers/{id}/notes', [CustomerController::class, 'addNote']);
         $r->post('/customers/{id}/activities', [CustomerController::class, 'addActivity']);
+        $r->post('/customers/{id}/attachments', [\App\Controllers\AttachmentController::class, 'store']);
+
+        // Attachments (download/delete).
+        $r->get('/attachments/{id}/download', [\App\Controllers\AttachmentController::class, 'download']);
+        $r->delete('/attachments/{id}', [\App\Controllers\AttachmentController::class, 'destroy']);
 
         // Contacts.
         $r->get('/contacts', [ContactController::class, 'index']);

@@ -113,12 +113,17 @@ final class CustomerController extends Controller
         }
 
         $this->view('customers/show', [
-            'title'    => $customer['company_name'],
-            'customer' => $customer,
-            'contacts' => $this->customers->contacts($id),
-            'timeline' => $this->customers->timeline($id),
-            'notes'    => $this->customers->notes($id),
-            'mapsKey'  => (string) config('integrations.google.maps_key', ''),
+            'title'       => $customer['company_name'],
+            'customer'    => $customer,
+            'contacts'    => $this->customers->contacts($id),
+            'timeline'    => $this->customers->timeline($id),
+            'notes'       => $this->customers->notes($id),
+            'attachments' => Database::instance()->all(
+                'SELECT a.*, u.name AS uploader FROM attachments a LEFT JOIN users u ON u.id = a.uploaded_by
+                 WHERE a.entity_type = "customer" AND a.entity_id = ? ORDER BY a.created_at DESC',
+                [$id]
+            ),
+            'mapsKey'     => (string) config('integrations.google.maps_key', ''),
         ]);
     }
 

@@ -92,6 +92,27 @@ $mapsQuery = urlencode(trim(($c['address'] ?? '') . ' ' . ($c['postal_code'] ?? 
             <button class="btn btn-outline btn-sm btn-block mt-2" onclick="openContactModal(<?= (int) $c['id'] ?>)"><?= icon('plus', 16) ?> Contact toevoegen</button>
         </div></div>
 
+        <div class="card"><div class="card-head"><h3><?= icon('upload', 18) ?> Bestanden</h3></div><div class="card-body">
+            <div id="dropzone" style="border:2px dashed var(--border-strong);border-radius:var(--r-md);padding:1.5rem;text-align:center;cursor:pointer;transition:all .2s;">
+                <?= icon('upload', 28) ?>
+                <p class="small text-muted mt-2">Sleep bestanden hierheen of <span class="text-accent" style="font-weight:600;">bladeren</span></p>
+                <input type="file" id="fileInput" multiple hidden>
+            </div>
+            <div id="fileList" class="mt-4">
+                <?php foreach ($attachments as $a): ?>
+                    <div class="flex items-center gap-3" style="padding:8px 0;border-bottom:1px solid var(--border);" data-att="<?= (int) $a['id'] ?>">
+                        <span class="feed-icon bg-blue" style="width:34px;height:34px;"><?= icon('file-text', 15) ?></span>
+                        <div class="flex-1" style="min-width:0;">
+                            <div style="font-weight:600;font-size:var(--fs-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><?= e($a['original_name']) ?> <?php if ($a['version'] > 1): ?><span class="badge badge-neutral">v<?= (int) $a['version'] ?></span><?php endif; ?></div>
+                            <div class="tiny text-muted"><?= e(\App\Core\FileService::humanSize((int) $a['size_bytes'])) ?> · <?= e($a['uploader'] ?? '') ?></div>
+                        </div>
+                        <a class="icon-btn" style="width:32px;height:32px;" href="/attachments/<?= (int) $a['id'] ?>/download"><?= icon('download', 16) ?></a>
+                        <button class="icon-btn" style="width:32px;height:32px;" onclick="delAtt(<?= (int) $a['id'] ?>)"><?= icon('trash', 16) ?></button>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div></div>
+
         <div class="card"><div class="card-head"><h3><?= icon('file-text', 18) ?> Notities</h3></div><div class="card-body">
             <form action="/customers/<?= (int) $c['id'] ?>/notes" method="post" class="mb-4">
                 <?= csrf_field() ?>
@@ -109,6 +130,32 @@ $mapsQuery = urlencode(trim(($c['address'] ?? '') . ' ' . ($c['postal_code'] ?? 
 </div>
 
 <script>
+// ---- File uploads (drag & drop) ----
+(function () {
+    var dz = document.getElementById('dropzone');
+    var input = document.getElementById('fileInput');
+    if (!dz) return;
+    var customerId = <?= (int) $c['id'] ?>;
+    dz.onclick = () => input.click();
+    input.onchange = () => upload(input.files);
+    ['dragover', 'dragenter'].forEach((e) => dz.addEventListener(e, (ev) => { ev.preventDefault(); dz.style.borderColor = 'var(--rose)'; dz.style.background = 'var(--surface-2)'; }));
+    ['dragleave', 'drop'].forEach((e) => dz.addEventListener(e, (ev) => { ev.preventDefault(); dz.style.borderColor = ''; dz.style.background = ''; }));
+    dz.addEventListener('drop', (ev) => upload(ev.dataTransfer.files));
+    async function upload(files) {
+        for (const file of files) {
+            const fd = new FormData();
+            fd.append('file', file);
+            fd.append('entity_type', 'customer');
+            fd.append('_csrf', SF.csrf());
+            try { await SF.api('/customers/' + customerId + '/attachments', { method: 'POST', body: fd }); SF.toast('“' + file.name + '” geüpload', 'success'); }
+            catch (e) { /* toast shown */ }
+        }
+        setTimeout(() => location.reload(), 700);
+    }
+})();
+function delAtt(id) {
+    SF.confirm('Bestand verwijderen?', () => SF.api('/attachments/' + id, { method: 'DELETE' }).then(() => document.querySelector('[data-att="' + id + '"]').remove()), { danger: true, confirmText: 'Verwijderen' });
+}
 function openContactModal(customerId) {
     var m = SF.modal.open(`
         <div class="modal-head"><h3>Contact toevoegen</h3><button class="icon-btn" data-close>&times;</button></div>
