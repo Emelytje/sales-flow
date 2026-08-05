@@ -137,7 +137,7 @@ final class Router
             Response::json(['error' => 'Not found'], 404);
         }
         http_response_code(404);
-        echo View::render('errors/404', ['title' => 'Pagina niet gevonden']);
+        echo View::render('errors/404', ['title' => 'Pagina niet gevonden'], 'layouts/blank');
         exit;
     }
 }
