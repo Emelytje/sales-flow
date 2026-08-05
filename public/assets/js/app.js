@@ -231,6 +231,31 @@
         }
     };
 
+    /* ---- Web Push --------------------------------------------------------- */
+    SF.push = {
+        key() { return document.querySelector('meta[name="vapid-key"]')?.content || ''; },
+        available() { return 'serviceWorker' in navigator && 'PushManager' in window && !!this.key(); },
+        urlB64ToUint8(base64) {
+            const pad = '='.repeat((4 - base64.length % 4) % 4);
+            const b64 = (base64 + pad).replace(/-/g, '+').replace(/_/g, '/');
+            const raw = atob(b64);
+            return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
+        },
+        async enable() {
+            if (!this.available()) { SF.toast('Push niet beschikbaar of niet geconfigureerd.', 'error'); return false; }
+            const perm = await Notification.requestPermission();
+            if (perm !== 'granted') { SF.toast('Meldingen geweigerd.', 'error'); return false; }
+            const reg = await navigator.serviceWorker.ready;
+            const sub = await reg.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: this.urlB64ToUint8(this.key())
+            });
+            await SF.api('/api/v1/push/subscribe', { method: 'POST', body: { subscription: sub.toJSON() } });
+            SF.toast('Meldingen ingeschakeld ✓', 'success');
+            return true;
+        }
+    };
+
     /* ---- Boot ------------------------------------------------------------- */
     document.addEventListener('DOMContentLoaded', () => {
         initSidebar();

@@ -25,6 +25,9 @@ try {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="<?= e(csrf_token()) ?>">
+    <?php $vapid = (string) getenv('VAPID_PUBLIC_KEY'); if ($vapid !== ''): ?>
+    <meta name="vapid-key" content="<?= e($vapid) ?>">
+    <?php endif; ?>
     <meta name="theme-color" content="#E98CAB">
     <title><?= e($title ?? 'SalesFlow Enterprise') ?> · SalesFlow</title>
     <link rel="manifest" href="/manifest.json">

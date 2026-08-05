@@ -1,0 +1,24 @@
+{
+    "name": "SalesFlow Enterprise",
+    "short_name": "SalesFlow",
+    "description": "Premium CRM voor sales-teams: klanten, callboard, agenda, offertes en rapporten.",
+    "start_url": "/dashboard",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "any",
+    "background_color": "#FFFDFB",
+    "theme_color": "#E98CAB",
+    "lang": "nl",
+    "categories": ["business", "productivity"],
+    "icons": [
+        { "src": "/assets/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+        { "src": "/assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+        { "src": "/assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+        { "src": "/assets/icons/maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+    ],
+    "shortcuts": [
+        { "name": "Callboard", "short_name": "Bellen", "url": "/callboard", "description": "Start met bellen" },
+        { "name": "Nieuwe klant", "url": "/customers/create" },
+        { "name": "Agenda", "url": "/agenda" }
+    ]
+}
