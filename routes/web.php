@@ -59,6 +59,13 @@ return static function (Router $router): void {
     $router->get('/t/o/{token}', [\App\Controllers\TrackingController::class, 'open']);
     $router->get('/t/c/{token}', [\App\Controllers\TrackingController::class, 'click']);
 
+    // CTI screen-pop page for softphones (session-authenticated inside).
+    $router->get('/cti/popup', [\App\Controllers\CtiController::class, 'popup']);
+
+    // Public quotation view + digital signature (customer-facing, no login).
+    $router->get('/q/{token}', [QuotationController::class, 'publicShow']);
+    $router->post('/q/{token}/sign', [QuotationController::class, 'sign']);
+
     // ---- Authenticated application ----
     $router->group(['middleware' => $auth], static function (Router $r): void {
         $r->get('/dashboard', [DashboardController::class, 'index']);
@@ -117,6 +124,7 @@ return static function (Router $router): void {
 
         // Map.
         $r->get('/map', [MapController::class, 'index']);
+        $r->post('/map/geocode/{id}', [MapController::class, 'geocode']);
 
         // Reports.
         $r->get('/reports', [ReportController::class, 'index']);

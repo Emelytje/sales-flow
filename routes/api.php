@@ -13,6 +13,7 @@ use App\Controllers\Api\QuotationApiController;
 use App\Controllers\Api\ActivityApiController;
 use App\Controllers\Api\WebhookApiController;
 use App\Controllers\Api\PushApiController;
+use App\Controllers\CtiController;
 use App\Core\Router;
 use App\Middleware\ApiAuthMiddleware;
 
@@ -24,6 +25,12 @@ return static function (Router $router): void {
         // Web Push subscription (session-authenticated from the PWA).
         $r->post('/push/subscribe', [PushApiController::class, 'subscribe']);
         $r->post('/push/unsubscribe', [PushApiController::class, 'unsubscribe']);
+
+        // CTI (telephony): public reverse-lookup + inbound webhook (secret-guarded),
+        // and session-authenticated polling for the browser screen-pop widget.
+        $r->get('/cti/lookup', [CtiController::class, 'lookup']);
+        $r->post('/cti/incoming', [CtiController::class, 'incoming']);
+        $r->get('/cti/poll', [CtiController::class, 'poll']);
 
         $api = [ApiAuthMiddleware::class];
 

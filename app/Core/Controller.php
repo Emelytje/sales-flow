@@ -44,7 +44,7 @@ abstract class Controller
                     Response::json(['error' => 'CSRF-token ongeldig of verlopen.'], 419);
                 }
                 http_response_code(419);
-                echo View::render('errors/419', ['title' => 'Sessie verlopen']);
+                echo View::render('errors/419', ['title' => 'Sessie verlopen'], 'layouts/blank');
                 exit;
             }
         }
@@ -86,7 +86,7 @@ abstract class Controller
                 Response::json(['error' => 'Geen toegang.'], 403);
             }
             http_response_code(403);
-            echo View::render('errors/403', ['title' => 'Geen toegang']);
+            echo View::render('errors/403', ['title' => 'Geen toegang'], 'layouts/blank');
             exit;
         }
     }

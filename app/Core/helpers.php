@@ -8,7 +8,15 @@ declare(strict_types=1);
 use App\Core\Auth;
 use App\Core\Config;
 use App\Core\Csrf;
+use App\Core\Icons;
 use App\Core\Session;
+
+if (!function_exists('icon')) {
+    function icon(string $name, int $size = 24, string $stroke = '2'): string
+    {
+        return Icons::get($name, $size, $stroke);
+    }
+}
 
 if (!function_exists('e')) {
     /** Escape a string for safe HTML output (XSS protection). */
