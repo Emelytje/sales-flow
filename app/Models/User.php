@@ -38,6 +38,12 @@ final class User extends Model
         return $this->db()->all('SELECT * FROM users WHERE status = "active" ORDER BY name ASC');
     }
 
+    /** @return array<int, array<string, mixed>> All users incl. suspended. */
+    public function allUsers(): array
+    {
+        return $this->db()->all('SELECT * FROM users ORDER BY name ASC');
+    }
+
     public function uniqueSlug(string $name): string
     {
         $base = preg_replace('/[^a-z0-9]+/', '-', strtolower($name)) ?: 'rep';
