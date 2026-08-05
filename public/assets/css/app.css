@@ -248,3 +248,23 @@
     .page-head { flex-direction: column; align-items: stretch; }
     .stat .stat-value { font-size: var(--fs-xl); }
 }
+
+/* ---- Calendar ------------------------------------------------------------- */
+.cal-grid { display: grid; }
+.cal-month { grid-template-columns: repeat(7, 1fr); border-top: 1px solid var(--border); border-left: 1px solid var(--border); }
+.cal-dow { padding: 8px; font-size: var(--fs-xs); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); text-align: center; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); background: var(--surface-2); }
+.cal-cell { min-height: 108px; padding: 6px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); cursor: pointer; transition: background var(--dur) var(--ease); overflow: hidden; }
+.cal-cell:hover { background: var(--surface-2); }
+.cal-cell.other { background: var(--bg-alt); opacity: .55; }
+.cal-cell.today .cal-num { background: var(--rose-dark); color: #fff; }
+.cal-num { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; font-size: var(--fs-sm); font-weight: 700; margin-bottom: 3px; }
+.cal-ev { display: flex; align-items: center; gap: 5px; padding: 2px 6px; margin-bottom: 3px; background: var(--surface-2); border-left: 3px solid var(--rose); border-radius: 5px; font-size: var(--fs-xs); cursor: pointer; overflow: hidden; white-space: nowrap; }
+.cal-ev:hover { background: var(--border); }
+.cal-ev.big { padding: 8px 10px; margin-bottom: 6px; white-space: normal; box-shadow: var(--shadow-xs); }
+.cal-ev-time { font-weight: 700; color: var(--rose-dark); }
+.cal-ev-title { text-overflow: ellipsis; overflow: hidden; }
+.cal-week { grid-template-columns: repeat(7, 1fr); gap: 8px; }
+.cal-col { min-width: 0; }
+.cal-daycol { min-height: 260px; background: var(--bg-alt); border-radius: var(--r-md); padding: 8px; margin-top: 6px; cursor: pointer; }
+.cal-day { max-width: 640px; margin: 0 auto; }
+@media (max-width: 640px) { .cal-cell { min-height: 76px; } .cal-ev-title { display: none; } .cal-week { grid-template-columns: 1fr; } }
