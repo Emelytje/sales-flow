@@ -644,4 +644,27 @@ CREATE TABLE settings (
     PRIMARY KEY (setting_key)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- -----------------------------------------------------------------------------
+--  CTI (Computer Telephony Integration) — inbound call screen-pops
+-- -----------------------------------------------------------------------------
+
+CREATE TABLE cti_calls (
+    id              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id         BIGINT UNSIGNED NOT NULL,
+    direction       ENUM('inbound','outbound') NOT NULL DEFAULT 'inbound',
+    caller_number   VARCHAR(40) NOT NULL,
+    called_number   VARCHAR(40) DEFAULT NULL,
+    caller_name     VARCHAR(190) DEFAULT NULL,
+    customer_id     BIGINT UNSIGNED DEFAULT NULL,
+    contact_id      BIGINT UNSIGNED DEFAULT NULL,
+    status          ENUM('ringing','answered','missed','ended') NOT NULL DEFAULT 'ringing',
+    delivered_at    DATETIME DEFAULT NULL,
+    created_at      DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    KEY idx_cti_user (user_id, status, delivered_at),
+    KEY idx_cti_created (created_at),
+    CONSTRAINT fk_cti_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    CONSTRAINT fk_cti_customer FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 SET FOREIGN_KEY_CHECKS = 1;

@@ -194,6 +194,43 @@
         }
     };
 
+    /* ---- CTI screen-pop (incoming calls) ---------------------------------- */
+    SF.cti = {
+        seen: new Set(),
+        start() {
+            if (this._timer) return;
+            const tick = () => this.poll();
+            this._timer = setInterval(tick, 3000);
+            tick();
+        },
+        async poll() {
+            let data;
+            try { data = await SF.api('/api/v1/cti/poll'); } catch (_) { return; }
+            (data.calls || []).forEach((c) => {
+                if (this.seen.has(c.id)) return;
+                this.seen.add(c.id);
+                this.show(c);
+            });
+        },
+        show(call) {
+            const initials = (call.name || '?').split(/\s+/).map((p) => p[0]).slice(0, 2).join('').toUpperCase();
+            const known = !!call.name;
+            const html = `
+                <div class="modal-body" style="text-align:center;padding:2rem;">
+                    <div class="avatar avatar-lg" style="margin:0 auto 1rem;width:68px;height:68px;font-size:1.5rem;${known ? '' : 'background:linear-gradient(135deg,#9C8F98,#6B5E68);'}">${known ? initials : '?'}</div>
+                    <div class="badge badge-rose badge-dot" style="margin-bottom:.6rem;">Inkomende oproep</div>
+                    <h2 style="margin-bottom:.2rem;">${known ? call.name : 'Onbekende beller'}</h2>
+                    <p class="text-soft" style="font-weight:600;">${call.number || ''}</p>
+                </div>
+                <div class="modal-foot" style="justify-content:center;">
+                    ${call.url ? `<a class="btn btn-primary" href="${call.url}">Open klantkaart</a>` : `<a class="btn btn-primary" href="/customers/create?phone=${encodeURIComponent(call.number || '')}">Nieuwe klant</a>`}
+                    <button class="btn btn-ghost" data-close>Sluiten</button>
+                </div>`;
+            SF.modal.open(html);
+            try { new Audio('data:audio/wav;base64,UklGRl9vAAA=').play().catch(() => {}); } catch (_) {}
+        }
+    };
+
     /* ---- Boot ------------------------------------------------------------- */
     document.addEventListener('DOMContentLoaded', () => {
         initSidebar();
@@ -204,6 +241,10 @@
         if (document.querySelector('.notif-dot')) {
             SF.notifications.refresh();
             setInterval(() => SF.notifications.refresh(), 60000);
+        }
+        // Start CTI screen-pop polling inside the authenticated app shell.
+        if (document.querySelector('.app')) {
+            SF.cti.start();
         }
         // Register the service worker for PWA/offline support.
         if ('serviceWorker' in navigator) {

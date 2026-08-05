@@ -84,4 +84,7 @@ INSERT INTO settings (setting_key, value, updated_at) VALUES
     ('quotation_next',      '1',                    NOW()),
     ('quotation_valid_days','30',                   NOW()),
     ('primary_color',       '#E98CAB',              NOW()),
-    ('accent_color',        '#B33B62',              NOW());
+    ('accent_color',        '#B33B62',              NOW()),
+    ('general_number',      '',                     NOW()),
+    ('sales_number',        '',                     NOW()),
+    ('cti_webhook_secret',  '',                     NOW());

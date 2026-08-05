@@ -59,6 +59,9 @@ return static function (Router $router): void {
     $router->get('/t/o/{token}', [\App\Controllers\TrackingController::class, 'open']);
     $router->get('/t/c/{token}', [\App\Controllers\TrackingController::class, 'click']);
 
+    // CTI screen-pop page for softphones (session-authenticated inside).
+    $router->get('/cti/popup', [\App\Controllers\CtiController::class, 'popup']);
+
     // ---- Authenticated application ----
     $router->group(['middleware' => $auth], static function (Router $r): void {
         $r->get('/dashboard', [DashboardController::class, 'index']);
