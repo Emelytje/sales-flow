@@ -50,10 +50,18 @@ final class CtiService
     }
 
     /**
-     * Build candidate match keys so a stored "03 123 45 67" still matches an
-     * inbound "+3231234567". We compare on the last significant digits.
+     * Number of trailing digits used for matching. Eight is the sweet spot for
+     * Belgian numbering: mobiles (04xx xx xx xx) and landlines (0X XXX XX XX)
+     * both share their last 8 significant digits regardless of the trunk '0' or
+     * the +32 country code, so stored and inbound formats line up.
      */
-    private static function tail(string $normalized, int $len = 9): string
+    private const TAIL_LEN = 8;
+
+    /**
+     * Build candidate match keys so a stored "03 234 56 78" still matches an
+     * inbound "+3232345678". We compare on the last significant digits.
+     */
+    private static function tail(string $normalized, int $len = self::TAIL_LEN): string
     {
         $digits = preg_replace('/\D/', '', $normalized) ?? '';
         return substr($digits, -$len);
@@ -73,20 +81,20 @@ final class CtiService
             return ['found' => false];
         }
         $tail = self::tail($normalized);
-        if (strlen($tail) < 6) {
+        if (strlen($tail) < 7) {
             return ['found' => false];
         }
         $db = $this->db();
 
         // Strip every non-digit in SQL (MySQL 8 REGEXP_REPLACE) and compare on the
-        // last 9 digits, so any stored format (0495…, +32…, 0032 …, 0495-12-34-56)
+        // last 8 digits, so any stored format (0495…, +32…, 0032 …, 0495-12-34-56)
         // matches the inbound number regardless of punctuation.
         $contact = $db->first(
             "SELECT c.id AS contact_id, c.first_name, c.last_name, c.customer_id,
                     cu.company_name, cu.owner_id
              FROM contacts c JOIN customers cu ON cu.id = c.customer_id
-             WHERE RIGHT(REGEXP_REPLACE(COALESCE(c.phone,''),  '[^0-9]', ''), 9) = ?
-                OR RIGHT(REGEXP_REPLACE(COALESCE(c.mobile,''), '[^0-9]', ''), 9) = ?
+             WHERE RIGHT(REGEXP_REPLACE(COALESCE(c.phone,''),  '[^0-9]', ''), 8) = ?
+                OR RIGHT(REGEXP_REPLACE(COALESCE(c.mobile,''), '[^0-9]', ''), 8) = ?
              LIMIT 1",
             [$tail, $tail]
         );
@@ -107,7 +115,7 @@ final class CtiService
         // 2) Company main number match.
         $customer = $db->first(
             "SELECT id, company_name, owner_id FROM customers
-             WHERE RIGHT(REGEXP_REPLACE(COALESCE(phone,''), '[^0-9]', ''), 9) = ?
+             WHERE RIGHT(REGEXP_REPLACE(COALESCE(phone,''), '[^0-9]', ''), 8) = ?
              LIMIT 1",
             [$tail]
         );

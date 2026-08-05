@@ -9,9 +9,11 @@ use App\Core\Model;
 final class Activity extends Model
 {
     protected string $table = 'activities';
+    // The activities table has created_at but no updated_at.
+    protected bool $timestamps = false;
     protected array $fillable = [
         'customer_id', 'contact_id', 'user_id', 'type', 'subject',
-        'body', 'outcome', 'duration_seconds', 'occurred_at',
+        'body', 'outcome', 'duration_seconds', 'occurred_at', 'created_at',
     ];
 
     /**
@@ -20,6 +22,7 @@ final class Activity extends Model
     public function log(array $data): int
     {
         $data['occurred_at'] ??= date('Y-m-d H:i:s');
+        $data['created_at'] ??= date('Y-m-d H:i:s');
         $id = $this->create($data);
 
         if (!empty($data['customer_id']) && in_array($data['type'] ?? '', ['call', 'email', 'meeting'], true)) {

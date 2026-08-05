@@ -81,22 +81,14 @@ final class CustomerController extends Controller
             'longitude', 'google_place_id', 'sector_id', 'project_id', 'owner_id',
             'pipeline_stage', 'status', 'priority', 'estimated_value', 'lead_score',
         ]);
-        $payload['owner_id'] = $payload['owner_id'] ?: Auth::id();
+        $payload['owner_id'] = ($payload['owner_id'] ?? '') ?: Auth::id();
         $payload['created_by'] = Auth::id();
         $payload = $this->nullifyEmpty($payload, ['sector_id', 'project_id', 'owner_id', 'latitude', 'longitude']);
 
         $id = $this->customers->create($payload);
 
-        // Best-effort free geocoding (OpenStreetMap) when no coordinates given.
-        if (empty($payload['latitude']) && (!empty($payload['city']) || !empty($payload['address']))) {
-            try {
-                $geo = \App\Services\GeoService::geocode(trim(($payload['address'] ?? '') . ', ' . ($payload['postal_code'] ?? '') . ' ' . ($payload['city'] ?? '') . ', ' . ($payload['country'] ?? 'België')));
-                if ($geo !== null) {
-                    $this->customers->update($id, ['latitude' => $geo['lat'], 'longitude' => $geo['lon']]);
-                }
-            } catch (\Throwable) {
-            }
-        }
+        // Coordinates are filled lazily by the map's geocode button or the
+        // cron/geocode.php job (free OpenStreetMap), so creating stays instant.
 
         (new Activity())->log([
             'customer_id' => $id, 'user_id' => Auth::id(), 'type' => 'system',
