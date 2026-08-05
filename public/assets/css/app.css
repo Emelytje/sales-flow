@@ -270,3 +270,30 @@
 .cal-daycol { min-height: 260px; background: var(--bg-alt); border-radius: var(--r-md); padding: 8px; margin-top: 6px; cursor: pointer; }
 .cal-day { max-width: 640px; margin: 0 auto; }
 @media (max-width: 640px) { .cal-cell { min-height: 76px; } .cal-ev-title { display: none; } .cal-week { grid-template-columns: 1fr; } }
+
+/* ---- Calendar: shared-team additions ------------------------------------- */
+.cal-ev { position: relative; }
+.cal-owner { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.cal-cell.drop-hint { background: rgba(233,140,171,0.14); }
+
+/* Time grid (week/day) */
+.tg-scroll { overflow: auto; max-height: 72vh; }
+.tg-head { display: grid; position: sticky; top: 0; z-index: 3; background: var(--surface); border-bottom: 1px solid var(--border); }
+.tg-corner { border-right: 1px solid var(--border); }
+.tg-dayhead { text-align: center; padding: 8px 4px; font-size: var(--fs-xs); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); border-right: 1px solid var(--border); }
+.tg-dayhead span { display: block; font-size: var(--fs-lg); color: var(--text); margin-top: 2px; }
+.tg-dayhead.today span { color: var(--rose-dark); }
+.tg-grid { display: grid; position: relative; }
+.tg-hours { border-right: 1px solid var(--border); }
+.tg-hour { height: 48px; position: relative; }
+.tg-hour span { position: absolute; top: -8px; right: 6px; font-size: var(--fs-xs); color: var(--text-muted); }
+.tg-col { position: relative; border-right: 1px solid var(--border); }
+.tg-slot { height: 48px; border-bottom: 1px solid var(--border); }
+.tg-ev { position: absolute; left: 3px; right: 3px; border-radius: 8px; padding: 3px 6px; overflow: hidden; cursor: pointer; box-shadow: var(--shadow-xs); z-index: 2; }
+.tg-ev:hover { z-index: 4; box-shadow: var(--shadow-sm); }
+.tg-ev-t { font-size: 10px; font-weight: 700; color: var(--rose-dark); }
+.tg-ev-title { font-size: var(--fs-xs); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tg-now { position: absolute; left: 0; right: 0; height: 2px; background: var(--danger); z-index: 5; }
+.tg-now::before { content: ''; position: absolute; left: -4px; top: -3px; width: 8px; height: 8px; border-radius: 50%; background: var(--danger); }
+#teamFilter label:hover { background: var(--surface-2); }
+@media (max-width: 900px) { .dash-grid[style*="220px"] { grid-template-columns: 1fr !important; } }

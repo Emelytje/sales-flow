@@ -15,9 +15,26 @@ final class Event extends Model
         'status', 'recurrence_rule', 'google_event_id', 'teams_join_url', 'reminder_minutes',
     ];
 
-    /** Events visible to a user in a date range (own + shared team events). */
-    public function inRange(int $userId, string $start, string $end): array
+    /**
+     * Events visible to a user in a date range. Always includes the user's own
+     * events (incl. private); shared events from colleagues are included and can
+     * be narrowed to a specific set of owners via $ownerFilter. Private events
+     * of other users are never returned.
+     *
+     * @param array<int,int> $ownerFilter when non-empty, limit colleagues shown
+     */
+    public function inRange(int $userId, string $start, string $end, array $ownerFilter = []): array
     {
+        $params = [$end, $start, $userId, $userId];
+        $filterSql = '';
+        if ($ownerFilter !== []) {
+            $ids = array_values(array_unique(array_map('intval', $ownerFilter)));
+            $ids[] = $userId; // never hide your own events
+            $placeholders = implode(',', array_fill(0, count($ids), '?'));
+            $filterSql = " AND e.user_id IN ($placeholders)";
+            $params = array_merge($params, $ids);
+        }
+
         return $this->db()->all(
             "SELECT e.*, c.company_name, u.name AS owner_name, u.color AS owner_color
              FROM agenda_events e
@@ -25,8 +42,10 @@ final class Event extends Model
              LEFT JOIN users u ON u.id = e.user_id
              WHERE e.starts_at < ? AND e.ends_at > ?
                AND (e.user_id = ? OR e.visibility = 'shared')
+               AND (e.visibility = 'shared' OR e.user_id = ?)
+               {$filterSql}
              ORDER BY e.starts_at ASC",
-            [$end, $start, $userId]
+            $params
         );
     }
 

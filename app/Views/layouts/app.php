@@ -44,6 +44,8 @@ try {
     </script>
 </head>
 <body>
+<!-- Core runtime loaded before page content so window.SF is available to view scripts. -->
+<script src="/assets/js/app.js"></script>
 <div class="app">
     <?= \App\Core\View::renderPartial('layouts/sidebar', ['isActive' => $isActive, 'user' => $user]) ?>
 
@@ -91,7 +93,6 @@ try {
         </main>
     </div>
 </div>
-<script src="/assets/js/app.js"></script>
 <?php if (!empty($scripts ?? [])): foreach ($scripts as $s): ?>
     <script src="<?= e($s) ?>"></script>
 <?php endforeach; endif; ?>

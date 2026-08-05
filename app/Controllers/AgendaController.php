@@ -27,6 +27,8 @@ final class AgendaController extends Controller
         $this->view('agenda/index', [
             'title'     => 'Agenda',
             'customers' => Database::instance()->all('SELECT id, company_name FROM customers ORDER BY company_name LIMIT 500'),
+            'team'      => Database::instance()->all("SELECT id, name, color FROM users WHERE status='active' ORDER BY name"),
+            'me'        => (int) Auth::id(),
         ]);
     }
 
@@ -37,7 +39,14 @@ final class AgendaController extends Controller
         $start = (string) $request->query('start', date('Y-m-01'));
         $end = (string) $request->query('end', date('Y-m-t'));
 
-        $rows = $this->events->inRange((int) Auth::id(), $start . ' 00:00:00', $end . ' 23:59:59');
+        // Optional colleague filter (comma-separated user ids).
+        $ownerFilter = [];
+        $usersParam = (string) $request->query('users', '');
+        if ($usersParam !== '') {
+            $ownerFilter = array_filter(array_map('intval', explode(',', $usersParam)));
+        }
+
+        $rows = $this->events->inRange((int) Auth::id(), $start . ' 00:00:00', $end . ' 23:59:59', $ownerFilter);
         $typeColor = ['meeting' => '#7A6FF0', 'call' => '#2FA36B', 'task' => '#D98A2B', 'visit' => '#4C9AA6', 'vacation' => '#9C8F98', 'other' => '#E98CAB'];
 
         $this->json(['events' => array_map(static function (array $e) use ($typeColor): array {
@@ -52,10 +61,13 @@ final class AgendaController extends Controller
                 'location' => $e['location'],
                 'company'  => $e['company_name'],
                 'owner'    => $e['owner_name'],
+                'owner_id' => (int) $e['user_id'],
+                'owner_color' => $e['owner_color'] ?: '#E98CAB',
                 'customer_id' => $e['customer_id'] ? (int) $e['customer_id'] : null,
                 'description' => $e['description'],
                 'travel'   => (int) $e['travel_minutes'],
                 'teams'    => $e['teams_join_url'],
+                'visibility' => $e['visibility'],
                 'mine'     => (int) $e['user_id'] === (int) Auth::id(),
             ];
         }, $rows)]);
