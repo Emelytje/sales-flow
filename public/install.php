@@ -69,6 +69,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $dsn = sprintf('mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4', req('db_host'), req('db_port', '3306'), req('db_name'));
             $pdo = new PDO($dsn, req('db_user'), req('db_pass'), [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+            // Clean slate so re-running the installer always works (drops any
+            // existing tables first — there is no real data yet at this stage).
+            $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
+            foreach ($pdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN) as $table) {
+                $pdo->exec("DROP TABLE IF EXISTS `{$table}`");
+            }
+            $pdo->exec('SET FOREIGN_KEY_CHECKS = 1');
             $pdo->exec((string) file_get_contents(ROOT . '/database/schema.sql'));
             $pdo->exec((string) file_get_contents(ROOT . '/database/seed.sql'));
             header('Location: ?step=4');
